@@ -122,7 +122,7 @@ public class CircleButton extends ImageView {
         focusPaint.setStyle(Paint.Style.STROKE);
 
         pressedRingWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, DEFAULT_PRESSED_RING_WIDTH_DIP, getResources()
-                .getDisplayMetrics());
+                .getDisplayMetrics())*5;
 
         int color = Color.BLACK;
         if (attrs != null) {
