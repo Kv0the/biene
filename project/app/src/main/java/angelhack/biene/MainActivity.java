@@ -22,7 +22,7 @@ public class MainActivity extends ActionBarActivity {
 
 		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); 
 		String uname= prefs.getString("username", null);
-		if (uname != null) {
+		if (uname == null) {
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString("username", "BIENE");
 			editor.putInt("idTravel", 1);
