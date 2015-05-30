@@ -46,6 +46,18 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
     public void onConnectionSuspended(int i) {
 
     }
@@ -54,7 +66,6 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
     public void onConnected(Bundle bundle) {
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
-        Toast.makeText(getApplicationContext(), "WOLOLOOOOOOOO", Toast.LENGTH_SHORT).show();
     }
 
     @Override
