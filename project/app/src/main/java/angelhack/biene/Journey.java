@@ -30,6 +30,7 @@ public class Journey extends ActionBarActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static  final int REQUEST_TAKE_PHOTO = 1;
     private String mCurrentPhotoPath;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,13 +162,23 @@ public class Journey extends ActionBarActivity {
         return image;
     }
 
-    protected synchronized void buildGoogleApiClient() {
-
+    protected synchronized void buildGoogleApiClient() {  // call it on create
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
-    //private GoogleApiClient mGoogleApiClient;
-
     private String getLocation() {
-        return "pene";
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        String location = "";
+        if (mLastLocation != null) {
+            location += String.valueOf(mLastLocation.getLatitude());
+            location += "-";
+            location += String.valueOf(mLastLocation.getLongitude());
+        }
+        return location;
     }
 }
