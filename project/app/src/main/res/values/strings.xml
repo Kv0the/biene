@@ -1,6 +1,22 @@
 <resources>
-    <string name="app_name">Biene</string>
-
+    <!-- Main app strings -->
+    <string name="app_name">biene</string>
     <string name="biene">biene</string>
+    <string name="va">va</string>
+
+    <!-- Action bar strings -->
     <string name="action_settings">Settings</string>
+
+    <!-- Button strings -->
+    <string name="button_start_journey">Start journey</string>
+    <string name="button_review_journeys">Review journeys</string>
+    <string name="button_take_photo">Take photo</string>
+    <string name="button_end_journey">End journey</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_journey">Journey</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_review">Review</string>
+
 </resources>
