@@ -10,9 +10,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.content.SharedPreferences;
 
 public class MainActivity extends ActionBarActivity {
+	
+	private static final String PREFS_NAME = "yoloswag420blazeit";
+
+	@Override
+    protected void onStart() {
+		super.onStart();
+
+		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); 
+		String uname= prefs.getString("username", null);
+		if (uname != null) {
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString("username", "BIENE");
+			editor.putInt("idTravel", 1);
+			editor.putInt("idJourney", 1);
+			editor.commit();
+		}
+	}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

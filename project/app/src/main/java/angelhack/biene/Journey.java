@@ -29,10 +29,12 @@ import java.util.Date;
 public class Journey extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    static  final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_TAKE_PHOTO = 1;
     private String mCurrentPhotoPath;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+
+    private static final String PREFS_NAME = "yoloswag420blazeit";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,8 +105,8 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         // get location
         String location = getLocation();
         Toast.makeText(getApplicationContext(), location, Toast.LENGTH_SHORT).show();
-
-        // TODO: insert it on the DB
+        
+        storePictureInCP();
     }
 
     public void endJourney(View view) {
@@ -190,5 +192,46 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         }
         else return "null";
         return location;
+    }
+
+    private void storeImageInCP() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int idPhoto = prefs.getInt("idJourney", 0);
+        String uname = prefs.getString("username", null);
+
+        if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
+        else {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("idJourney", idPhoto+1);
+            editor.commit();
+        }
+
+        try {
+            List<String> connectionStrings = new List<String>();
+            connectionStrings.Add("tcps://cloud-eu-0.clusterpoint.com:9008");
+            connectionStrings.Add("tcps://cloud-eu-1.clusterpoint.com:9008");
+            connectionStrings.Add("tcps://cloud-eu-2.clusterpoint.com:9008");
+            connectionStrings.Add("tcps://cloud-eu-3.clusterpoint.com:9008");
+
+            CPSConnection conn = new CPSConnection(new CPSLoadBalancer(connectionStrings), "DB_Test", "arnauguido@hotmail.com", "BieneAlessio", 
+                                               "843", 'document', '//document/id'); 
+
+            List<String> docs = new ArrayList<String>();
+            docs.add("<document><id>"+ idPhoto +"</id><user>" + uname + "</user></document>");
+            
+            //Create Insert request
+            CPSInsertRequest insert_req = new CPSInsertRequest();
+            //Add documents to request
+            insert_req.setStringDocuments(docs);
+            //Send request
+            CPSModifyResponse insert_resp = (CPSModifyResponse) conn.sendRequest(insert_req);
+            //Print out inserted document ids
+            // System.out.println("Inserted ids: " + Arrays.toString(insert_resp.getModifiedIds()));
+
+            //Close connection
+            conn.close();
+        } catch (Exception e)  {
+            e.printStackTrace();
+        }   
     }
 }
