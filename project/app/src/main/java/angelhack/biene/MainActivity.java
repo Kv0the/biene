@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -19,7 +20,17 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         final ActionBarActivity context = this;
 
-        Button st_journey = (Button) context.findViewById(R.id.btn_start_journey);
+        TextView txt_journey = (TextView) context.findViewById(R.id.button_start_text);
+
+        txt_journey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, Journey.class);
+                startActivity(intent);
+            }
+        });
+
+        CircleButton st_journey = (CircleButton) context.findViewById(R.id.btn_start_journey);
 
         st_journey.setOnClickListener(new View.OnClickListener() {
             @Override

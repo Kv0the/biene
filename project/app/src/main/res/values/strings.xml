@@ -8,7 +8,7 @@
     <string name="action_settings">Settings</string>
 
     <!-- Button strings -->
-    <string name="button_start_journey">Start journey</string>
+    <string name="button_start_journey">Start\njourney</string>
     <string name="button_review_journeys">Review journeys</string>
     <string name="button_take_photo">Take photo</string>
     <string name="button_end_journey">End journey</string>
