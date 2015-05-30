@@ -162,24 +162,12 @@ public class Journey extends ActionBarActivity {
     }
 
     protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+
     }
 
-    private GoogleApiClient mGoogleApiClient;
+    //private GoogleApiClient mGoogleApiClient;
 
     private String getLocation() {
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        String location = "";
-        if (mLastLocation != null) {
-            location += String.valueOf(mLastLocation.getLatitude());
-            location += "-";
-            location += (String.valueOf(mLastLocation.getLongitude()));
-        }
-        return location;
+        return "pene";
     }
 }
