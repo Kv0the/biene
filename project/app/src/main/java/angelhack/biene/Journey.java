@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -201,6 +203,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
     }
 
     private void storeImageInCP() {
+        Toast.makeText(this, "GUIDO FAGGOT", Toast.LENGTH_LONG).show();
 
         try {
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -214,7 +217,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 editor.commit();
             }
 
-            CPSConnection conn = new CPSConnection("tcps://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "arnauguido@hotmail.com", "BieneAlessio",
+            CPSConnection conn = new CPSConnection("tcps://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "BIENE", "Alessio",
                                                "843", "document", "//document/id");
 
             List<String> docs = new ArrayList<String>();
@@ -227,7 +230,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
             //Send request
             CPSModifyResponse insert_resp = (CPSModifyResponse) conn.sendRequest(insert_req);
             //Print out inserted document ids
-            // System.out.println("Inserted ids: " + Arrays.toString(insert_resp.getModifiedIds()));
+            Log.d("GUIDO", "Inserted ids: " + Arrays.toString(insert_resp.getModifiedIds()));
 
             //Close connection
             conn.close();
