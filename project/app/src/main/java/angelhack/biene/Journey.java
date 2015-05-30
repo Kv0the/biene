@@ -1,7 +1,8 @@
 package angelhack.biene;
 
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.clusterpoint.api.CPSConnection;
+import com.clusterpoint.api.request.CPSInsertRequest;
+import com.clusterpoint.api.response.CPSModifyResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -23,7 +27,9 @@ import com.google.android.gms.location.LocationServices;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class Journey extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -105,8 +111,8 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         // get location
         String location = getLocation();
         Toast.makeText(getApplicationContext(), location, Toast.LENGTH_SHORT).show();
-        
-        storePictureInCP();
+
+        storeImageInCP();
     }
 
     public void endJourney(View view) {
@@ -195,26 +201,21 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
     }
 
     private void storeImageInCP() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        int idPhoto = prefs.getInt("idJourney", 0);
-        String uname = prefs.getString("username", null);
-
-        if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
-        else {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putInt("idJourney", idPhoto+1);
-            editor.commit();
-        }
 
         try {
-            List<String> connectionStrings = new List<String>();
-            connectionStrings.Add("tcps://cloud-eu-0.clusterpoint.com:9008");
-            connectionStrings.Add("tcps://cloud-eu-1.clusterpoint.com:9008");
-            connectionStrings.Add("tcps://cloud-eu-2.clusterpoint.com:9008");
-            connectionStrings.Add("tcps://cloud-eu-3.clusterpoint.com:9008");
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            int idPhoto = prefs.getInt("idJourney", 0);
+            String uname = prefs.getString("username", null);
 
-            CPSConnection conn = new CPSConnection(new CPSLoadBalancer(connectionStrings), "DB_Test", "arnauguido@hotmail.com", "BieneAlessio", 
-                                               "843", 'document', '//document/id'); 
+            if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
+            else {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt("idJourney", idPhoto+1);
+                editor.commit();
+            }
+
+            CPSConnection conn = new CPSConnection("tcps://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "arnauguido@hotmail.com", "BieneAlessio",
+                                               "843", "document", "//document/id");
 
             List<String> docs = new ArrayList<String>();
             docs.add("<document><id>"+ idPhoto +"</id><user>" + uname + "</user></document>");
