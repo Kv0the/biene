@@ -1,23 +1,23 @@
 package angelhack.biene;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,12 +25,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class Journey extends ActionBarActivity {
+public class Journey extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static  final int REQUEST_TAKE_PHOTO = 1;
     private String mCurrentPhotoPath;
     private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,22 @@ public class Journey extends ActionBarActivity {
         buildGoogleApiClient();
     }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        Toast.makeText(getApplicationContext(), "WOLOLOOOOOOOO", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -171,14 +188,13 @@ public class Journey extends ActionBarActivity {
     }
 
     private String getLocation() {
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
         String location = "";
         if (mLastLocation != null) {
             location += String.valueOf(mLastLocation.getLatitude());
             location += "-";
             location += String.valueOf(mLastLocation.getLongitude());
         }
+        else return "null";
         return location;
     }
 }
