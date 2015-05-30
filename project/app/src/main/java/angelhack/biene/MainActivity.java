@@ -37,7 +37,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         final ActionBarActivity context = this;
 
-        final CircleButton st_journey = (CircleButton) context.findViewById(R.id.btn_start_journey);
+        CircleButton st_journey = (CircleButton) context.findViewById(R.id.btn_start_journey);
 
         st_journey.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +52,7 @@ public class MainActivity extends ActionBarActivity {
         txt_journey.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                CircleButton st_journey = (CircleButton) context.findViewById(R.id.btn_start_journey);
                 st_journey.animate();
                 st_journey.performClick();
             }

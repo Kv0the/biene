@@ -10,7 +10,6 @@
     <!-- Button strings -->
     <string name="button_start_journey">Start\njourney</string>
     <string name="button_review_journeys">Review journeys</string>
-    <string name="button_take_photo">Take photo</string>
     <string name="button_end_journey">End journey</string>
 
 <!-- TODO: Remove or change this placeholder text -->

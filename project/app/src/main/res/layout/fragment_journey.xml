@@ -1,41 +1,36 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="angelhack.biene.Journey$PlaceholderFragment">
+    tools:context="angelhack.biene.Journey$JourneyFragment"
+    android:background="@drawable/bg2">
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_end_journey"
         android:id="@+id/btn_end_journey"
-        android:layout_below="@+id/btn_take_photo"
+        android:textSize="22dp"
+        android:theme="@style/Theme.AppCompat"
+        android:layout_marginTop="35dp"
+        android:layout_below="@+id/imageButton"
         android:layout_centerHorizontal="true"
-        android:layout_gravity="center"
         android:onClick="endJourney" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_take_photo"
-        android:id="@+id/btn_take_photo"
-        android:layout_centerVertical="true"
-        android:layout_alignLeft="@+id/btn_end_journey"
-        android:layout_alignStart="@+id/btn_end_journey"
-        android:layout_gravity="center"
-        android:onClick="takePhoto" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/va"
-        android:id="@+id/textView"
-        android:layout_above="@+id/btn_review_journeys"
+    <ImageView
+        android:layout_width="250dip"
+        android:layout_height="250dip"
+        android:id="@+id/imageButton"
+        android:src="@drawable/icon"
+        android:scaleType="fitCenter"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="55dp"
-        android:textSize="100dp" />
+        android:layout_centerVertical="true"
+        android:onClick="takePhoto"/>
+
 
 </RelativeLayout>

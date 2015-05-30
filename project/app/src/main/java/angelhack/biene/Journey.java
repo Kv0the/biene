@@ -3,6 +3,7 @@ package angelhack.biene;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -164,8 +165,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
 		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 			Bundle extras = data.getExtras();
 			Bitmap imageBitmap = (Bitmap) extras.get("data");
-		    mImageView.setImageBitmap(imageBitmap);
-       		storeImageInCP(image);
+       		storeImageInCP(imageBitmap);
 	   }
    	}
 
@@ -208,7 +208,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         return location;
     }
 
-    private void storeImageInCP(File savedImage) {
+    private void storeImageInCP(Bitmap savedImage) {
         try {
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             int idPhoto = prefs.getInt("idJourney", 0);
