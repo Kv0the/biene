@@ -1,6 +1,7 @@
 package angelhack.biene;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -96,12 +97,8 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
     }
 
     public void takePhoto(View view) {
-
         // take photo
         dispatchTakePictureIntent();
-
-        // save it on gallery
-        galleryAddPic();
 
         // get location
         String location = getLocation();
@@ -154,24 +151,6 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         }
     }
 
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-
-    /** If we wanted to display it
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            mImageView.setImageBitmap(imageBitmap);
-        }
-    }
-    */
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -187,6 +166,10 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(image);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
         return image;
     }
 
