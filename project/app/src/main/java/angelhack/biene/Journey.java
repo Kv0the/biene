@@ -149,12 +149,13 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(photoFile));
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            } finally {
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                            Uri.fromFile(photoFile));
+                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                }
             }
         }
     }
@@ -171,7 +172,6 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
-
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
