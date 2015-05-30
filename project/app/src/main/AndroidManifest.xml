@@ -16,6 +16,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Journey"
+            android:label="@string/title_activity_journey"
+            android:parentActivityName=".Journey" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="angelhack.biene.MainActivity" />
+        </activity>
+        <activity android:name=".Review"
+            android:label="@string/title_activity_review"
+            android:parentActivityName=".Review" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="angelhack.biene.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
