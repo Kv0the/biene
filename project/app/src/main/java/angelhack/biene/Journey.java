@@ -160,6 +160,14 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         }
     }
 
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+			Bundle extras = data.getExtras();
+			Bitmap imageBitmap = (Bitmap) extras.get("data");
+		    mImageView.setImageBitmap(imageBitmap);
+       		storeImageInCP(image);
+	   }
+   	}
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -178,7 +186,6 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         Uri contentUri = Uri.fromFile(image);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
-        storeImageInCP(image);
         return image;
     }
 
