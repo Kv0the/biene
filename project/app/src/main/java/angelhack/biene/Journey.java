@@ -111,8 +111,6 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         // get location
         String location = getLocation();
         Toast.makeText(getApplicationContext(), location, Toast.LENGTH_SHORT).show();
-
-        storeImageInCP();
     }
 
     public void endJourney(View view) {
@@ -178,6 +176,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         Uri contentUri = Uri.fromFile(image);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
+        storeImageInCP(image);
         return image;
     }
 
@@ -200,8 +199,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         return location;
     }
 
-    private void storeImageInCP() {
-
+    private void storeImageInCP(File savedImage) {
         try {
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             int idPhoto = prefs.getInt("idJourney", 0);
