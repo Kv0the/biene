@@ -1,14 +1,19 @@
 package angelhack.biene;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Base64;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,13 +30,35 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.GsonBuilder;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MapDetail extends ActionBarActivity {
     private GoogleMap mMap;
     private HashMap<Marker, Bitmap> mHash;
+    private ArrayList<LatLng> points = new ArrayList<LatLng>();
+    private ArrayList<LatLng> photoLocations = new ArrayList<LatLng>();
+    private ArrayList<Bitmap> photos = new ArrayList<Bitmap>();
+    private ArrayList<String> descriptions = new ArrayList<String>();
+
+    private static final String PREFS_NAME = "yoloswag420blazeit";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -109,22 +136,9 @@ public class MapDetail extends ActionBarActivity {
         return shareIntent;
     }
 
-    private ArrayList<LatLng> getFakeData() {
-        ArrayList<LatLng> points = new ArrayList<LatLng>();
-        points.add(new LatLng(0.0, 0.0));
-        points.add(new LatLng(10.0, 0.0));
-        points.add(new LatLng(0.0, 20.0));
-        points.add(new LatLng(0.0, 30.0));
-        points.add(new LatLng(10.0, 35.0));
-        points.add(new LatLng(15.0, 35.0));
-        return points;
-    }
-
     private void drawRoute() {
 
         // TODO get data from DB
-        ArrayList<LatLng> points = getFakeData();
-
         Polyline line = mMap.addPolyline(new PolylineOptions()
                 //.add(new LatLng(51.5, -0.1), new LatLng(40.7, -74.0))
                 .width(5)
@@ -133,18 +147,7 @@ public class MapDetail extends ActionBarActivity {
         // Remove previous roads and marks
         mMap.clear();
         // Print map and all markers
-        mMap.addPolyline(new PolylineOptions().addAll(points).width(5).color(Color.RED));
-
-        ArrayList<LatLng> photoLocations = new ArrayList<LatLng>();
-        ArrayList<Bitmap> photos = new ArrayList<Bitmap>();
-        ArrayList<String> descriptions = new ArrayList<String>();
         mHash = new HashMap<Marker, Bitmap>();
-        // TODO query DB for the photos and store them in the arrays
-        for (int i = 0; i < 10; i++) {
-            photoLocations.add(new LatLng(0.0, 0.0));
-            photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
-            descriptions.add("BIENE");
-        }
         mMap.addPolyline(new PolylineOptions().addAll(photoLocations).width(5).color(Color.RED));
         for (int i = 0; i < photos.size(); i++) {
             Marker marker = mMap.addMarker(new MarkerOptions()
@@ -210,6 +213,91 @@ public class MapDetail extends ActionBarActivity {
             // TODO Auto-generated method stub
             return null;
         }
+    }
 
+    public class FetchListTask extends AsyncTask<String, Void, String[]> {
+
+        private final String LOG_TAG = FetchListTask.class.getSimpleName();
+
+        private String[] getDataFromResponse(HttpResponse resp) {
+
+            String[] str = new String[0];
+            Log.d("AAAAH", "ENTRAMOS");
+
+            try {
+                String json_string = EntityUtils.toString(resp.getEntity());
+                System.out.printf(json_string);
+                JSONObject tmp = new JSONObject(json_string);
+                JSONObject docs = tmp.getJSONObject("documents");
+                List<String> list = new ArrayList<String>();
+                for (Iterator iterator = docs.keys(); iterator.hasNext();) {
+                    String key = (String) iterator.next();
+                    list.add(docs.getJSONObject(key).getString("lat")+" "
+                            +docs.getJSONObject(key).getString("lon")+" "
+                            +docs.getJSONObject(key).getString("title")+ " "
+                            +docs.getJSONObject(key).getString("photo"));
+                }
+                str = list.toArray(str);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return str;
+
+        }
+
+        public HttpResponse makeRequest(String uri, String json) {
+            try {
+                String authStr = "elnombredelviento@gmail.com:bienealessio";
+                String encoding = Base64.encodeToString(authStr.getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
+
+                HttpPost httpPost = new HttpPost(uri);
+                httpPost.setEntity(new StringEntity(json));
+                httpPost.setHeader("Accept", "application/json");
+                httpPost.setHeader("Content-type", "application/json");
+                httpPost.setHeader("Authorization", "Basic " + encoding);
+                return new DefaultHttpClient().execute(httpPost);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected String[] doInBackground(String... params) {
+
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            String uname = prefs.getString("username", null);
+            String[] mstr = params[0].split(" ");
+            String ms = mstr[2].substring(1);
+
+            Map<String, String> qq = new HashMap<String, String>();
+            qq.put("query", "<journey>"+ms+"</journey><user>"+uname+"</user>");
+            String json = new GsonBuilder().create().toJson(qq, Map.class);
+            HttpResponse resp = makeRequest("https://api-eu.clusterpoint.com/854/DB_test/_search.json", json);
+            return getDataFromResponse(resp);
+        }
+
+        protected void onPostExecute(String[] data) {
+            if (data != null) {
+                for (String str : data) {
+                    String[] tmp = str.split(" ");
+                    points.add(new LatLng(Double.valueOf(tmp[0]), Double.valueOf(tmp[1])));
+                    photoLocations.add(new LatLng(Double.valueOf(tmp[0]), Double.valueOf(tmp[1])));
+                    photos.add(stringToBitmap(tmp[1]));
+                    descriptions.add(tmp[2]);
+                }
+
+            }
+        }
+
+        public Bitmap stringToBitmap(String str) {
+            byte[] bitmapdata = str.getBytes();
+            return BitmapFactory.decodeByteArray(bitmapdata, 100, bitmapdata.length);
+        }
     }
 }
