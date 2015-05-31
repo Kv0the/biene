@@ -145,6 +145,7 @@ public class MapDetail extends ActionBarActivity {
             photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
             descriptions.add("BIENE");
         }
+        mMap.addPolyline(new PolylineOptions().addAll(photoLocations).width(5).color(Color.RED));
         for (int i = 0; i < photos.size(); i++) {
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(photoLocations.get(i))
