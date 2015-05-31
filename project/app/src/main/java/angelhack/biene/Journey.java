@@ -154,13 +154,39 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         }
     }
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    private String showRenameDialog () {
+        alertDialog.setTitle("Name your picture!");
+        final EditText name = new EditText(SecondScan.this);
+
+        LinearLayout ll = new LinearLayout(this);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.addView(name);
+        alertDialog.setView(ll);
+
+        alertDialog.setCancelable(false);
+        String rename = null;
+        alertDialog.setPositiveButton("OK",  new DialogInterface.OnClickListener() { 
+            public void onClick(DialogInterface dialog, int id) {
+                rename = name.getText();
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+
+        while (rename == null);
+        return rename;
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         System.out.println("RESULT");
         try {
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
                 //File photoFile = createImageFile();
                 Bundle extras = data.getExtras();
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
+                showRenameDialog();
                 mClusterpoint.execute(imageBitmap);
                 // TODO save in file
             }
@@ -169,7 +195,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
             System.out.println("wololo");
             e.printStackTrace();
         }
-   	}
+    }
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -270,17 +296,17 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                     editor.putInt("idJourney", idPhoto+1);
                     editor.commit();
                 }
-			
-				final String BASE_URL = "https://api-eu.clusterpoint.com/843/DB_Test.json";
+            
+                final String BASE_URL = "https://api-eu.clusterpoint.com/843/DB_Test.json";
 
-				try {
-					JSONObject jsonObject = new JSONObject();
-					jsonObject.put("id", idPhoto);
-					jsonObject.put("username", uname);
-					Log.d("output", jsonObject.toString());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+                try {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("id", idPhoto);
+                    jsonObject.put("username", uname);
+                    Log.d("output", jsonObject.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
             } catch (Exception e)  {
                 //Toast.makeText(getApplicationContext(), "ERROOOOOOR :(", Toast.LENGTH_LONG).show();
