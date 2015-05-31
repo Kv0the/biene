@@ -1,16 +1,14 @@
 package angelhack.biene;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -106,7 +104,7 @@ public class Review extends ActionBarActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     String forecast = mAdapter.getItem(position).toString();
                     // Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getActivity(), DetailActivity.class).
+                    Intent intent = new Intent(getActivity(), MapDetail.class).
                             putExtra(Intent.EXTRA_TEXT, forecast);
                     startActivity(intent);
                 }
