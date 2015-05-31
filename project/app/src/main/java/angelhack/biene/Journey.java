@@ -1,6 +1,8 @@
 package angelhack.biene;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -18,24 +20,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.clusterpoint.api.CPSConnection;
-import com.clusterpoint.api.request.CPSInsertRequest;
-import com.clusterpoint.api.response.CPSModifyResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 
 public class Journey extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -154,9 +155,10 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         }
     }
 
-    private String showRenameDialog () {
+    private void showRenameDialog () {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Name your picture!");
-        final EditText name = new EditText(SecondScan.this);
+        final EditText name = new EditText(this);
 
         LinearLayout ll = new LinearLayout(this);
         ll.setOrientation(LinearLayout.VERTICAL);
@@ -164,19 +166,17 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         alertDialog.setView(ll);
 
         alertDialog.setCancelable(false);
-        String rename = null;
-        alertDialog.setPositiveButton("OK",  new DialogInterface.OnClickListener() { 
+        alertDialog.setPositiveButton("OK",  new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                rename = name.getText();
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("imagename", name.getText().toString());
                 dialog.dismiss();
             }
         });
 
         AlertDialog alert = alertDialog.create();
         alert.show();
-
-        while (rename == null);
-        return rename;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -289,6 +289,11 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
                 int idPhoto = prefs.getInt("idJourney", 0);
                 String uname = prefs.getString("username", "alessio");
+                String imageName = prefs.getString("imagename", null);
+
+                while (imageName == null) imageName = prefs.getString("imagename", null);
+
+                Toast.makeText(getApplicationContext(), imageName, Toast.LENGTH_LONG).show();
 
                 if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
                 else {
