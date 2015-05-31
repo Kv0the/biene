@@ -314,13 +314,13 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 }
 
                 // Login data
-                String cp_db = "DB_Test";
+                String cp_db = "DB_test";
                 String cp_user = "elnombredelviento@gmail.com";
                 String cp_pw = "bienealessio";
                 String cp_user_id = "854";
 
-                CPSConnection conn = new CPSConnection("tcp://cloud-eu-1.clusterpoint.com:9007", cp_db, cp_user, cp_pw,
-                        "document", "//document/id");
+                CPSConnection conn = new CPSConnection("tcp://cloud-eu-0.clusterpoint.com:9007", cp_db, cp_user, cp_pw,
+                        cp_user_id, "document", "//document/id");
 
                 List<String> docs = new ArrayList<String>();
                 docs.add("<document><id>"+ idPhoto +"</id><user>" + uname + "</user></document>");
