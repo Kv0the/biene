@@ -163,7 +163,6 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
                 mClusterpoint.execute(imageBitmap);
                 // TODO save in file
-                //storeImage(imageBitmap);
             }
         }
         catch (Exception e) {
@@ -255,51 +254,10 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         return location;
     }
 
-    private void storeImageInCP(Bitmap savedImage) {
-        try {
-
-            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            int idPhoto = prefs.getInt("idJourney", 0);
-            String uname = prefs.getString("username", null);
-
-            if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
-            else {
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putInt("idJourney", idPhoto+1);
-                editor.commit();
-            }
-
-            CPSConnection conn = new CPSConnection("tcp://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "BIENE", "Alessio",
-                                               "843", "document", "//document/id");
-
-            List<String> docs = new ArrayList<String>();
-            docs.add("<document><id>"+ idPhoto +"</id><user>" + uname + "</user></document>");
-            
-            //Create Insert request
-            CPSInsertRequest insert_req = new CPSInsertRequest();
-            //Add documents to request
-            insert_req.setStringDocuments(docs);
-            //Send request
-            CPSModifyResponse insert_resp = (CPSModifyResponse) conn.sendRequest(insert_req);
-            //Print out inserted document ids
-            Log.d("GUIDO", "Inserted ids: " + Arrays.toString(insert_resp.getModifiedIds()));
-
-            //Close connection
-            conn.close();
-        } catch (Exception e)  {
-            Toast.makeText(this, "ERROOOOOOR :(", Toast.LENGTH_LONG).show();
-
-            System.out.println("guidoguidoguido");
-            e.printStackTrace();
-        }   
-    }
-
     public class ClusterpointTask extends AsyncTask<Bitmap, Void, Void> {
 
         @Override
         protected Void doInBackground(Bitmap... image) {
-            // TODO image
-
             try {
 
                 SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -312,30 +270,18 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                     editor.putInt("idJourney", idPhoto+1);
                     editor.commit();
                 }
+			
+				final String BASE_URL = "https://api-eu.clusterpoint.com/843/DB_Test.json";
 
-                // Login data
-                String cp_db = "DB_test";
-                String cp_user = "elnombredelviento@gmail.com";
-                String cp_pw = "bienealessio";
-                String cp_user_id = "854";
+				try {
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("id", idPhoto);
+					jsonObject.put("username", uname);
+					Log.d("output", jsonObject.toString());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 
-                CPSConnection conn = new CPSConnection("tcp://cloud-eu-0.clusterpoint.com:9007", cp_db, cp_user, cp_pw,
-                        cp_user_id, "document", "//document/id");
-
-                List<String> docs = new ArrayList<String>();
-                docs.add("<document><id>"+ idPhoto +"</id><user>" + uname + "</user></document>");
-
-                //Create Insert request
-                CPSInsertRequest insert_req = new CPSInsertRequest();
-                //Add documents to request
-                insert_req.setStringDocuments(docs);
-                //Send request
-                CPSModifyResponse insert_resp = (CPSModifyResponse) conn.sendRequest(insert_req);
-                //Print out inserted document ids
-                Log.d("GUIDO", "Inserted ids: " + Arrays.toString(insert_resp.getModifiedIds()));
-
-                //Close connection
-                conn.close();
             } catch (Exception e)  {
                 //Toast.makeText(getApplicationContext(), "ERROOOOOOR :(", Toast.LENGTH_LONG).show();
 
@@ -346,3 +292,4 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         }
     }
 }
+
