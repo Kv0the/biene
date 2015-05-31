@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,6 +15,12 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.net.HttpURLConnection;
+
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +34,13 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.gson.GsonBuilder;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,8 +49,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class Journey extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -59,7 +77,6 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                     .add(R.id.container, new JourneyFragment())
                     .commit();
         }
-        mClusterpoint = new ClusterpointTask();
         buildGoogleApiClient();
     }
 
@@ -119,11 +136,15 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
 
         // get location
         String location = getLocation();
-        Toast.makeText(getApplicationContext(), location, Toast.LENGTH_SHORT).show();
     }
 
     public void endJourney(View view) {
-        Toast.makeText(this, "SE FUE", Toast.LENGTH_LONG).show();
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int idJourney = prefs.getInt("idJourney", 1);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("idJourney", idJourney+1);
+        editor.commit();
+        finish();
     }
 
     public static class JourneyFragment extends Fragment {
@@ -184,9 +205,11 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         try {
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
                 //File photoFile = createImageFile();
+                Log.d("AAAAAAAH","FOTO SACADAAAAAAA");
                 Bundle extras = data.getExtras();
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
-                showRenameDialog();
+                //showRenameDialog();
+                mClusterpoint = new ClusterpointTask();
                 mClusterpoint.execute(imageBitmap);
                 // TODO save in file
             }
@@ -282,36 +305,63 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
 
     public class ClusterpointTask extends AsyncTask<Bitmap, Void, Void> {
 
+        public HttpResponse makeRequest(String uri, String json) {
+            try {
+                String authStr = "elnombredelviento@gmail.com:bienealessio";
+                String encoding = Base64.encodeToString(authStr.getBytes(),Base64.URL_SAFE|Base64.NO_WRAP);
+
+                HttpPost httpPost = new HttpPost(uri);
+                httpPost.setEntity(new StringEntity(json));
+                httpPost.setHeader("Accept", "application/json");
+                httpPost.setHeader("Content-type", "application/json");
+                httpPost.setHeader("Authorization", "Basic " + encoding);
+                return new DefaultHttpClient().execute(httpPost);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
         @Override
-        protected Void doInBackground(Bitmap... image) {
+        protected Void doInBackground(Bitmap... params) {
             try {
 
                 SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                int idPhoto = prefs.getInt("idJourney", 0);
+                int idJourney = prefs.getInt("idJourney", 0);
+                int idPhoto = prefs.getInt("idPhoto", 0);
                 String uname = prefs.getString("username", "alessio");
                 String imageName = prefs.getString("imagename", null);
 
-                while (imageName == null) imageName = prefs.getString("imagename", null);
+                //while (imageName == null) imageName = prefs.getString("imagename", null);
 
-                Toast.makeText(getApplicationContext(), imageName, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), imageName, Toast.LENGTH_LONG).show();
 
-                if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
+                if (idJourney == 0) throw new Exception("The app did not get initialized correctly");
                 else {
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putInt("idJourney", idPhoto+1);
+                    editor.putInt("idPhoto", idPhoto+1);
                     editor.commit();
                 }
-            
-                final String BASE_URL = "https://api-eu.clusterpoint.com/843/DB_Test.json";
 
-                try {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("id", idPhoto);
-                    jsonObject.put("username", uname);
-                    Log.d("output", jsonObject.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Bitmap image = params[0];
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream(image.getWidth() * image.getHeight());
+                image.compress(Bitmap.CompressFormat.PNG, 100, buffer);
+                byte[] byteArray = buffer.toByteArray();
+
+                Map<String, String> qq = new HashMap<String, String>();
+                qq.put("id", Integer.toString(idPhoto));
+                qq.put("journey", Integer.toString(idJourney));
+                qq.put("title","Journey #" + Integer.toString(idJourney));
+                qq.put("photo",byteArray.toString());
+                qq.put("user", uname);
+                qq.put("lat", String.valueOf(mLastLocation.getLatitude()));
+                qq.put("lon", String.valueOf(mLastLocation.getLongitude()));
+                String json = new GsonBuilder().create().toJson(qq, Map.class);
+                makeRequest("https://api-eu.clusterpoint.com/854/DB_test/_insert.json", json);
 
             } catch (Exception e)  {
                 //Toast.makeText(getApplicationContext(), "ERROOOOOOR :(", Toast.LENGTH_LONG).show();
@@ -320,6 +370,10 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 e.printStackTrace();
             }
             return null;
+        }
+
+        protected void onPostExecute(Bitmap... params) {
+            Log.d("EEEEEH","LISTO LA TASK");
         }
     }
 }
