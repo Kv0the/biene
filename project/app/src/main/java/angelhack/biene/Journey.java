@@ -304,7 +304,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
 
                 SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
                 int idPhoto = prefs.getInt("idJourney", 0);
-                String uname = prefs.getString("username", null);
+                String uname = prefs.getString("username", "alessio");
 
                 if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
                 else {
@@ -313,8 +313,14 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                     editor.commit();
                 }
 
-                CPSConnection conn = new CPSConnection("tcp://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "BIENE", "Alessio",
-                        "843", "document", "//document/id");
+                // Login data
+                String cp_db = "DB_Test";
+                String cp_user = "elnombredelviento@gmail.com";
+                String cp_pw = "bienealessio";
+                String cp_user_id = "854";
+
+                CPSConnection conn = new CPSConnection("tcp://cloud-eu-1.clusterpoint.com:9007", cp_db, cp_user, cp_pw,
+                        "document", "//document/id");
 
                 List<String> docs = new ArrayList<String>();
                 docs.add("<document><id>"+ idPhoto +"</id><user>" + uname + "</user></document>");
