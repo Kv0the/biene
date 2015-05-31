@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -27,6 +28,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,6 +45,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
     private String mCurrentPhotoPath;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private ClusterpointTask mClusterpoint;
 
     private static final String PREFS_NAME = "yoloswag420blazeit";
 
@@ -54,6 +58,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                     .add(R.id.container, new JourneyFragment())
                     .commit();
         }
+        mClusterpoint = new ClusterpointTask();
         buildGoogleApiClient();
     }
 
@@ -145,28 +150,26 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-            } finally {
-                // Continue only if the File was successfully created
-                if (photoFile != null) {
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                            Uri.fromFile(photoFile));
-                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                }
-            }
+            startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
         }
     }
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-			Bundle extras = data.getExtras();
-			Bitmap imageBitmap = (Bitmap) extras.get("data");
-       		storeImageInCP(imageBitmap);
-	   }
+        System.out.println("RESULT");
+        try {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+                //File photoFile = createImageFile();
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                mClusterpoint.execute(imageBitmap);
+                // TODO save in file
+                //storeImage(imageBitmap);
+            }
+        }
+        catch (Exception e) {
+            System.out.println("wololo");
+            e.printStackTrace();
+        }
    	}
 
     private File createImageFile() throws IOException {
@@ -187,6 +190,50 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
         return image;
+    }
+
+    private void storeImage(Bitmap image) {
+        File pictureFile = getOutputMediaFile();
+        if (pictureFile == null) {
+            Log.d("storeImage",
+                    "Error creating media file, check storage permissions: ");// e.getMessage());
+            return;
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            image.compress(Bitmap.CompressFormat.PNG, 90, fos);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            Log.d("storeImage", "File not found: " + e.getMessage());
+        } catch (IOException e) {
+            Log.d("storeImage", "Error accessing file: " + e.getMessage());
+        }
+    }
+
+    private  File getOutputMediaFile(){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                + "/Android/data/"
+                + getApplicationContext().getPackageName()
+                + "/Files");
+
+
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmm").format(new Date());
+        File mediaFile;
+        String mImageName="MI_"+ timeStamp +".jpg";
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
+        return mediaFile;
     }
 
     protected synchronized void buildGoogleApiClient() {  // call it on create
@@ -210,6 +257,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
 
     private void storeImageInCP(Bitmap savedImage) {
         try {
+
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             int idPhoto = prefs.getInt("idJourney", 0);
             String uname = prefs.getString("username", null);
@@ -221,7 +269,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
                 editor.commit();
             }
 
-            CPSConnection conn = new CPSConnection("tcps://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "BIENE", "Alessio",
+            CPSConnection conn = new CPSConnection("tcp://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "BIENE", "Alessio",
                                                "843", "document", "//document/id");
 
             List<String> docs = new ArrayList<String>();
@@ -239,7 +287,56 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
             //Close connection
             conn.close();
         } catch (Exception e)  {
+            Toast.makeText(this, "ERROOOOOOR :(", Toast.LENGTH_LONG).show();
+
+            System.out.println("guidoguidoguido");
             e.printStackTrace();
         }   
+    }
+
+    public class ClusterpointTask extends AsyncTask<Bitmap, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Bitmap... image) {
+            // TODO image
+
+            try {
+
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                int idPhoto = prefs.getInt("idJourney", 0);
+                String uname = prefs.getString("username", null);
+
+                if (idPhoto == 0) throw new Exception("The app did not get initialized correctly");
+                else {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("idJourney", idPhoto+1);
+                    editor.commit();
+                }
+
+                CPSConnection conn = new CPSConnection("tcp://cloud-eu-0.clusterpoint.com:9008", "DB_Test", "BIENE", "Alessio",
+                        "843", "document", "//document/id");
+
+                List<String> docs = new ArrayList<String>();
+                docs.add("<document><id>"+ idPhoto +"</id><user>" + uname + "</user></document>");
+
+                //Create Insert request
+                CPSInsertRequest insert_req = new CPSInsertRequest();
+                //Add documents to request
+                insert_req.setStringDocuments(docs);
+                //Send request
+                CPSModifyResponse insert_resp = (CPSModifyResponse) conn.sendRequest(insert_req);
+                //Print out inserted document ids
+                Log.d("GUIDO", "Inserted ids: " + Arrays.toString(insert_resp.getModifiedIds()));
+
+                //Close connection
+                conn.close();
+            } catch (Exception e)  {
+                //Toast.makeText(getApplicationContext(), "ERROOOOOOR :(", Toast.LENGTH_LONG).show();
+
+                System.out.println("guidoguidoguido");
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 }
