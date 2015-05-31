@@ -18,5 +18,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_review">Review your journeys</string>
     <string name="title_activity_map_detail">Map detail</string>
+    <string name="action_share">Share</string>
 
 </resources>
