@@ -162,7 +162,7 @@ public class Review extends ActionBarActivity {
                     List<String> list = new ArrayList<String>();
                     for (Iterator iterator = docs.keys(); iterator.hasNext();) {
                         String key = (String) iterator.next();
-                        list.add(docs.getJSONObject(key).getString("id")+": "+docs.getJSONObject(key).getString("title"));
+                        list.add(docs.getJSONObject(key).getString("journey")+": "+docs.getJSONObject(key).getString("title"));
                     }
                     str = list.toArray(str);
                 } catch (IOException e) {
@@ -211,7 +211,7 @@ public class Review extends ActionBarActivity {
                 if (data != null) {
                     mAdapter.clear();
                     for (String dt : data) {
-                        mAdapter.add(dt);
+                        if (mAdapter.getPosition(dt) < 0) mAdapter.add(dt);
                     }
                 }
             }
