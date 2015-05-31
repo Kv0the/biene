@@ -1,5 +1,6 @@
 package angelhack.biene;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 
 public class Review extends ActionBarActivity {
@@ -24,7 +30,6 @@ public class Review extends ActionBarActivity {
                     .commit();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,10 +61,57 @@ public class Review extends ActionBarActivity {
         public PlaceholderFragment() {
         }
 
+        private ArrayAdapter mAdapter;
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            updateAdapter();
+        }
+
+        private void updateAdapter() {
+            mAdapter.add("Viaje al centro del pene");
+            mAdapter.add("Biene un guido");
+            mAdapter.add("Guiiiiiiidens");
+        }
+
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
             View rootView = inflater.inflate(R.layout.fragment_review, container, false);
+
+            mAdapter =
+                    new ArrayAdapter<String>(
+                            // The current context (this fragment's parent activity)
+                            getActivity(),
+                            // ID of list item layout
+                            R.layout.list_item,
+                            // ID of the textview to populate
+                            R.id.list_item_textview,
+                            // Forecast data
+                            new ArrayList<String>()
+                    );
+
+            // Get a reference to the ListView, and attach this adapter it it
+            ListView listView = (ListView) rootView.findViewById(
+                    R.id.listview
+            );
+
+            listView.setAdapter(mAdapter);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String forecast = mAdapter.getItem(position).toString();
+                    // Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getActivity(), DetailActivity.class).
+                            putExtra(Intent.EXTRA_TEXT, forecast);
+                    startActivity(intent);
+                }
+            });
+
             return rootView;
         }
     }

@@ -63,7 +63,8 @@ public class MainActivity extends ActionBarActivity {
         rev_journeys.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "REVIEW", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(context, Review.class);
+                startActivity(intent);
             }
         });
     }
