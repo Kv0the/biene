@@ -12,7 +12,6 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:adjustViewBounds="true"
-            android:src="@drawable/alessio"
             android:layout_gravity="center" />
         <TextView
             android:id="@+id/map_info_title"
@@ -20,7 +19,6 @@
             android:layout_height="wrap_content"
             android:textSize="12dp"
             android:textStyle="bold"
-            android:text="text"
             android:textColor="#000000"
             android:gravity="center"/>
 

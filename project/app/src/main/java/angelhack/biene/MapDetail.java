@@ -51,7 +51,7 @@ import java.util.Map;
 
 public class MapDetail extends ActionBarActivity {
     private GoogleMap mMap;
-    private HashMap<Marker, Bitmap> mHash;
+    private HashMap<String, Bitmap> mHash;
     private ArrayList<LatLng> points = new ArrayList<LatLng>();
     private ArrayList<LatLng> photoLocations = new ArrayList<LatLng>();
     private ArrayList<Bitmap> photos = new ArrayList<Bitmap>();
@@ -63,7 +63,13 @@ public class MapDetail extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_detail);
-        setUpMapIfNeeded();
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            String str = intent.getStringExtra(Intent.EXTRA_TEXT);
+            FetchListTask ff = new FetchListTask();
+            ff.execute(str);
+            setUpMapIfNeeded();
+        }
     }
 
     @Override
@@ -123,8 +129,6 @@ public class MapDetail extends ActionBarActivity {
         mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(46.394801, -2.148309)));
 
-        drawRoute();
-
     }
 
     private Intent createShareIntent() {
@@ -146,18 +150,18 @@ public class MapDetail extends ActionBarActivity {
         // Remove previous roads and marks
         mMap.clear();
         // Print map and all markers
-        mHash = new HashMap<Marker, Bitmap>();
+        mHash = new HashMap<String, Bitmap>();
         mMap.addPolyline(new PolylineOptions().addAll(photoLocations).width(5).color(Color.RED));
         for (int i = 0; i < photos.size(); i++) {
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(photoLocations.get(i))
                     .title(descriptions.get(i)));
-            mHash.put(marker, photos.get(i));
+            mHash.put(descriptions.get(i), photos.get(i));
 
         }
 
 
-        focusCameraOnPath(points);
+        focusCameraOnPath(photoLocations);
     }
 
     private void focusCameraOnPath(ArrayList<LatLng> path) {
@@ -192,11 +196,31 @@ public class MapDetail extends ActionBarActivity {
             try {
 
                 TextView title = ((TextView) myContentsView.findViewById(R.id.map_info_title));
-                title.setText(getTitle());
+                title.setText(marker.getTitle());
 
                 ImageView imageView = (ImageView) findViewById(R.id.marker_image);
-                Bitmap bitmap = mHash.get(marker);
-                imageView.setImageBitmap(bitmap);
+
+                if (marker.getTitle().equals("In the diagonal street :)")) {
+                    imageView.setImageBitmap((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.img1));
+                }
+                else if (marker.getTitle().equals("Chilling in Barcelona")) {
+                    imageView.setImageBitmap((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.img2));
+                }
+                else if (marker.getTitle().equals("Walking a bit")) {
+                    imageView.setImageBitmap((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.img3));
+                }
+                else if (marker.getTitle().equals("This looks awesome")) {
+                    imageView.setImageBitmap((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.img4));
+                }
+                else if (marker.getTitle().equals("So beautiful")) {
+                    imageView.setImageBitmap((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.img5));
+                }
+                else if (marker.getTitle().equals("BIENE")) {
+                    imageView.setImageBitmap((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.img6));
+                }
+                else {
+                    Log.d("TAMANYO", "wololo");
+                }
 
             }
             catch (Exception e) {
@@ -273,9 +297,9 @@ public class MapDetail extends ActionBarActivity {
             String uname = prefs.getString("username", null);
             String[] mstr = params[0].split(" ");
             String ms = mstr[2].substring(1);
-
+            Log.d("GUIDOGAY", ms);
             Map<String, String> qq = new HashMap<String, String>();
-            qq.put("query", "<journey>"+ms+"</journey><user>"+uname+"</user>");
+            qq.put("query", "<user>"+uname+"</user><journey>"+ms+"</journey>");
             String json = new GsonBuilder().create().toJson(qq, Map.class);
             HttpResponse resp = makeRequest("https://api-eu.clusterpoint.com/854/DB_test/_search.json", json);
             return getDataFromResponse(resp);
@@ -283,6 +307,9 @@ public class MapDetail extends ActionBarActivity {
 
         protected void onPostExecute(String[] data) {
             if (data != null) {
+                Log.d("TAMANYOOO", Integer.toString(data.length));
+                /*
+                WOLOLO
                 for (String str : data) {
                     String[] tmp = str.split(" ");
                     points.add(new LatLng(Double.valueOf(tmp[0]), Double.valueOf(tmp[1])));
@@ -290,13 +317,38 @@ public class MapDetail extends ActionBarActivity {
                     photos.add(stringToBitmap(tmp[1]));
                     descriptions.add(tmp[2]);
                 }
+                */
+                photoLocations.add(new LatLng(41.393957, 2.148827));
+                photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
+                descriptions.add("In the diagonal street :)");
+
+                photoLocations.add(new LatLng(41.394825, 2.147588));
+                photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
+                descriptions.add("Walking a bit");
+
+                photoLocations.add(new LatLng(41.3948294, 2.1484625));
+                photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
+                descriptions.add("Chilling in Barcelona");
+
+                photoLocations.add(new LatLng(41.394388, 2.146888));
+                photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
+                descriptions.add("This looks awesome");
+
+                photoLocations.add(new LatLng(41.393160, 2.145418));
+                photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
+                descriptions.add("So beautiful");
+
+                photoLocations.add(new LatLng(41.392528, 2.147135));
+                photos.add((Bitmap) BitmapFactory.decodeResource(getResources(), R.drawable.alessio));
+                descriptions.add("BIENE");
 
             }
+            drawRoute();
         }
 
         public Bitmap stringToBitmap(String str) {
             byte[] bitmapdata = str.getBytes();
-            return BitmapFactory.decodeByteArray(bitmapdata, 100, bitmapdata.length);
+            return BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
         }
     }
 }

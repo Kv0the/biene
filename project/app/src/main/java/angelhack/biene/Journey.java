@@ -128,7 +128,7 @@ public class Journey extends ActionBarActivity implements GoogleApiClient.Connec
         String location = getLocation();
     }
 
-    public void endJourney(View view) {
+    public void end_Journey(View view) {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         int idJourney = prefs.getInt("idJourney", 1);
         SharedPreferences.Editor editor = prefs.edit();
